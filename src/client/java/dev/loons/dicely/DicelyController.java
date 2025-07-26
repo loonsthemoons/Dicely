@@ -41,10 +41,17 @@ public class DicelyController {
                     for(int i=0; i<noOfDice; i++){
                         randomNumbers[i] = generateRandomNumber(noOfSides);
                     }
-                    context.getSource().sendFeedback(Text.literal("Rolled: " + Arrays.toString(randomNumbers)));
+                    context.getSource().sendFeedback(Text.literal("Rolled " + noOfDice + "d" + noOfSides + ": " + Arrays.toString(randomNumbers)));
                     return 1;
                 }
-            }))));
+            }))).then(ClientCommandManager.literal("copy").executes(context -> {
+                context.getSource().sendFeedback(Text.literal("Successfully copied last roll"));
+                return 1;
+                    })).then(ClientCommandManager.literal("history").executes(context -> {
+                        context.getSource().sendFeedback(Text.literal("last rolls were: "));
+                        return 1;
+                    }))
+            );
         });
     }
 
