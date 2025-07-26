@@ -15,7 +15,10 @@ public class DicelyController {
 
     private void buildController(){
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(ClientCommandManager.literal("dicely").then(ClientCommandManager.argument("sides", IntegerArgumentType.integer()).executes(context ->{
+            dispatcher.register(ClientCommandManager.literal("dicely").executes(context -> {
+                context.getSource().sendFeedback(Text.literal("To use dicely, use /dicely <sides> <count>"));
+                return 1;
+                            }).then(ClientCommandManager.argument("sides", IntegerArgumentType.integer()).executes(context ->{
                 int noOfSides = IntegerArgumentType.getInteger(context, "sides");
                 context.getSource().sendFeedback(Text.literal(dicelyDeathlyRolls(noOfSides, 1)));
                 return 1;
