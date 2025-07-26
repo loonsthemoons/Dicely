@@ -3,11 +3,11 @@ package dev.loons.dicely;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
-import java.util.Arrays;
-
 public class DicelyController {
+    DicelyStructure structure = new DicelyStructure();
 
     public DicelyController(){
         buildController();
@@ -17,38 +17,24 @@ public class DicelyController {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(ClientCommandManager.literal("dicely").then(ClientCommandManager.argument("sides", IntegerArgumentType.integer()).executes(context ->{
                 int noOfSides = IntegerArgumentType.getInteger(context, "sides");
-                if(noOfSides<0){
-                    context.getSource().sendFeedback(Text.literal("Can't roll a number smaller than 1"));
-                    return 1;
-                } else {
-                    int randomNumber = generateRandomNumber(noOfSides);
-                    context.getSource().sendFeedback(Text.literal("Rolled a: " + randomNumber));
-                    return 1;
-                }
+                context.getSource().sendFeedback(Text.literal(dicelyDeathlyRolls(noOfSides, 1)));
+                return 1;
             }).then(ClientCommandManager.argument("count", IntegerArgumentType.integer()).executes(context -> {
                 int noOfSides = IntegerArgumentType.getInteger(context, "sides");
                 int noOfDice = IntegerArgumentType.getInteger(context, "count");
-                if(noOfSides<0 || noOfDice<0){
-                    if(noOfSides<0){
-                        context.getSource().sendFeedback(Text.literal("Can't roll a number smaller than 1"));
-                        return 1;
-                    } else {
-                        context.getSource().sendFeedback(Text.literal("Cant' roll less then 1 dice"));
-                        return 1;
-                    }
-                } else {
-                    int[] randomNumbers= new int[noOfDice];
-                    for(int i=0; i<noOfDice; i++){
-                        randomNumbers[i] = generateRandomNumber(noOfSides);
-                    }
-                    context.getSource().sendFeedback(Text.literal("Rolled " + noOfDice + "d" + noOfSides + ": " + Arrays.toString(randomNumbers)));
-                    return 1;
-                }
-            }))).then(ClientCommandManager.literal("copy").executes(context -> {
-                context.getSource().sendFeedback(Text.literal("Successfully copied last roll"));
+                context.getSource().sendFeedback(Text.literal(dicelyDeathlyRolls(noOfSides, noOfDice)));
                 return 1;
+            }))).then(ClientCommandManager.literal("copy").executes(context -> {
+                if(!structure.getDicesHistory().isEmpty()){
+                    MinecraftClient.getInstance().keyboard.setClipboard(structure.toString());
+                    context.getSource().sendFeedback(Text.literal("Successfully copied last roll"));
+                } else {
+                    context.getSource().sendFeedback(Text.literal("Nothing to copy"));
+                }
+                        return 1;
+
                     })).then(ClientCommandManager.literal("history").executes(context -> {
-                        context.getSource().sendFeedback(Text.literal("last rolls were: "));
+                        context.getSource().sendFeedback(Text.literal("Last rolls were: \n" + structure.getHistoryAsString()));
                         return 1;
                     }))
             );
@@ -57,5 +43,23 @@ public class DicelyController {
 
     private int generateRandomNumber(int noOfSides){
         return (int) ((Math.random() * noOfSides)+1);
+    }
+
+    private String dicelyDeathlyRolls(int noOfSides, int noOfDice) {
+        if (noOfSides < 0 || noOfDice < 0) {
+            if (noOfSides < 0) {
+                return "Can't roll a number smaller than 1";
+            } else {
+                return "Cant' roll less then 1 dice";
+            }
+        } else {
+            int[] randomNumbers = new int[noOfDice];
+            for (int i = 0; i < noOfDice; i++) {
+                randomNumbers[i] = generateRandomNumber(noOfSides);
+            }
+            structure.getDicesHistory().add(randomNumbers);
+            if(noOfDice>1) return "Rolled " + noOfDice + "d" + noOfSides + " >> " + structure.formatDiceThrows(randomNumbers) + " >> Sum: (" + structure.getSumOfThrow(randomNumbers) + ")";
+            return "Rolled " + noOfDice + "d" + noOfSides + " >> " + structure.formatDiceThrows(randomNumbers);
+        }
     }
 }

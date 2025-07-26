@@ -7,8 +7,6 @@ With dicely, you can roll any dice in any amount you want, completely client sid
 
 ## Commands (`/dicely`) 
 
-*IMPORTANT! NO FEATURES CURRENTLY EXISTS, THIS README IS PURELY AETHESTICAL!*
-
 Use `/dicely help` for command hints in-game. Here's what you can do:
 
 ### Dice 
