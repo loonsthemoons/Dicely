@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "dicely",
+	"version": "${version}",
+	"name": "Dicely",
+	"description": "Dice to your heart’s content, any size, any amount, all from one command.",
+	"authors": [
+		"loonsthemoons"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/dicely/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"dev.loons.dicely.Dicely"
+		],
+		"client": [
+			"dev.loons.dicely.DicelyClient"
+		]
+	},
+	"mixins": [
+		"dicely.mixins.json",
+		{
+			"config": "dicely.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.14.0",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
